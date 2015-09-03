@@ -1,0 +1,4 @@
+se: Escape Sequences ‘ “ \
+why these give errors: 
+print ‘ \’cool\’ ‘  # for single quotes
+print ‘ \’cool\’ ‘  # for double quotes
