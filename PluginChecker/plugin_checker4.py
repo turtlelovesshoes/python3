@@ -12,6 +12,7 @@
 
 from urllib2 import * 
 import sys
+import collections
 
 blocklisturl = "https://addons.mozilla.org/en-US/firefox/blocked/"
 #list of only plugins in here
@@ -41,7 +42,7 @@ def getDates(strg, sub, endsub, start, end):
 		if index == -1:
 			break
 		end = strg.find(endsub, index)
-		print "first occurance:"
+		#print "first occurance:"
 		print strg[index+len(sub):end]
 		if sub is '<a href="/en-US/firefox/blocked/i':
 			lists.append(strg[index+len(sub):end])
@@ -49,27 +50,30 @@ def getDates(strg, sub, endsub, start, end):
 		else:	
 			lists.append(strg[index+len(sub)+3:end])
 			index+=5
-		
 	return lists
 
-class Plugins(object):
+#class Plugins(object):
+##   def __init__(self, name_string,date_string):
+  #      self.Date = date_string
+   #     self.name = name_string
 
-    def __init__(self, name_string,date_string):
-        self.Date = date_string
-        self.name = name_string
-
-    def apple(self):
-        print "I AM CLASSY APPLES!"
+#    def apple(self):
+ #       print "I AM CLASSY APPLES!"
 
 
 def main():
 	Html= getHtml(blocklisturl);
 	start= Html.find('blocked-items')
 	Dates = getDates(Html,'<span class="dt"', ':</span>', start, len(Html))
-	#print type(Dates)
 	print Dates
 	Plugins_block = getDates(Html,'<a href="/en-US/firefox/blocked/i', '</a>', start, len(Html))	
-	print Plugins_block
+	
+	stuff = dict(zip(Plugins_block, Dates))
+	print stuff
+
+		
+
+			
 	# iterate one at time for dates
 	#newstart = Html.find('<span class="dt">',start, Html.find(':</span>', start, len(Html))) + 17
 	#print Html[newstart:newstart+15]
