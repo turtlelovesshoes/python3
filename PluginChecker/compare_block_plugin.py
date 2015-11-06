@@ -3,6 +3,9 @@
 # This will be the part that retreives the list of plugin verions from plugins.mozilla.org page
 # https://plugins.mozilla.org/en-us/plugins_list.json
 # https://docs.python.org/2/library/json.html
+# NOTE THIS WILL GIBE THE LATEST OF PLUGIN CHECK PAGE
+#1 and 2 are matches between the block list and plugin check
+# 3 and 4 are potential matches and need human filtering!
 
 #libraries
 import json 
@@ -38,6 +41,7 @@ blocklistKeyword =["Java", "Reader", "Cisco Web Communicator", "RealPlayer", "Si
 def getHtml(string):
 	stuff = urlopen(string)
 	html  = stuff.read()
+	stuff.close()
 	return html
 
 def getDates(strg, sub, endsub, start, end):
@@ -66,12 +70,12 @@ def getLatest(pluginname,Plugin_json):
 	#check if its a valid key:
 	store = {}
 	for s in plugin_keys:
-		if(s == 'adobe-flash-player') or (s == "adobe-reader"):
+		if(s == "adobe-reader") or (s == "FF2A5498-4EFE-430F-A138-7EB365DBEBAD-1"):
 			print "Name" + " " +Plugin_json["plugins"][s]["display_name"]
 			print "Latest Windows and Mac" + " " + Plugin_json["plugins"][s]["versions"]["win"]["latest"][0]["version"]
 			print "Latest Linux" + " " + Plugin_json["plugins"][s]["versions"]["lin"]["latest"][0]["version"]
 			store[Plugin_json["plugins"][s]["display_name"]] = Plugin_json["plugins"][s]["versions"]["win"]["latest"][0]["version"], Plugin_json["plugins"][s]["versions"]["lin"]["latest"][0]["version"]
-		if (s is 'CiscoWebCommunicatorplugincheck') or (s is 'realplayer'):
+		if (s == 'adobe-flash-player') or (s is 'CiscoWebCommunicatorplugincheck') or (s is 'realplayer'):
 			print "Name" + " " +Plugin_json["plugins"][s]["display_name"]
 			print "win version" + " " +Plugin_json["plugins"][s]["versions"]["win"]["latest"][0]["version"]
 			store [Plugin_json["plugins"][s]["display_name"]]= Plugin_json["plugins"][s]["versions"]["win"]["latest"][0]["version"]
@@ -93,7 +97,6 @@ def getLatest(pluginname,Plugin_json):
 	#key.versions.lin.latest.version
 
 	#return value for true false?
-
 	return store
 # def getVulnerable(pluginname,Plugin_json):
 
@@ -138,7 +141,7 @@ def main():
 
 	for x in plugin_keys:
 		latest = getLatest(x,Plugin_json)
-
+	#latest.keys().replace("","u'")
 	#for y in plugin_keys:
 	#	getVulnerable(y, Plugin_json)
 	# to clean it up: separators=(',', ': ') 
@@ -156,32 +159,55 @@ def main():
 	#
 	#####################################################################
 
-
-
 	#check type and type def error
 	##plugin check stuff
 	Html= getHtml(blocklisturl);
 	start= Html.find('blocked-items')
 	Dates = getDates(Html,'<span class="dt"', ':</span>', start, len(Html))
-	Plugins_block = getDates(Html,'<a href="/en-US/firefox/blocked/i', '</a>', start, len(Html))	
+	Plugins_block = getDates(Html,'<a href="/en-US/firefox/blocked/p', '</a>', start, len(Html))	
 	
 	Plugin_list_dict = dict(zip(Plugins_block, Dates))
-	#print Plugin_list_dict
-	#print "lalalalalalalal"
-	print latest
 
 	#are keys of latest in plugin_list_dict
+	####DEBUGGING START HERE
 	#print set(latest.keys).issubset(Plugins_list_dict.keys)
-	for key in Plugin_list_dict:
-		print key
-		if key in latest: 
-			print key
-	#compare the dict to list
-	
+	#print any(latest.keys() in Plugin_list_dict for key in dict(latest))
+	#print Plugin_list_dict
+	#print Plugins_block
+	#print latest
+	print "1 and 2 are matches between the block list and plugin check \n 3 and 4 are potential matches and need human filtering!"
 
+	#i want to search if the value of latest is in plugins block
+	for i in Plugin_list_dict:
+		for j in latest:
+			if i.find(j) != -1:
+				print '1'
+				print i
+				print j
+				print latest[j]
+			if j.find(i) != -1:
+				print '2'
+				print i
+				print j
+				print latest[j]
+			temp =j.split(" ")
+			temp2= i.split(" ")
+			for x in temp2:
+				 for l in temp: 
+					if x in l:
+						print '3'
+						print i
+						print j
+						print latest[j]
+						continue
+					if l in x and latest[j] in temp2:
+						print '4'
+						print i
+						print j
+						print latest[j]
+						continue
 
-
-
+			#compare the dict to list
 #boiler plate main
 if __name__ == '__main__':
 	main()
